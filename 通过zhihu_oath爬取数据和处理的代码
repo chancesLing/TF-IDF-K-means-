@@ -1,0 +1,96 @@
+import zhihu_oauth
+import pandas as pd
+import time
+from zhihu_oauth import ZhihuClient
+from zhihu_oauth.exception import NeedCaptchaException #需要验证码
+
+client = ZhihuClient()
+user = ''//知乎的账号，手机号登陆需加”+86“
+pwd = ''//账号的密码
+
+try:
+    client.login(user,pwd)
+    print("登录成功")
+except NeedCaptchaException:   #保存验证码提示输入，重新登陆
+    with open('a.gif','wb') as f:
+        f.write(client.get_captcha())
+    captcha = input("please input captcha")
+    client.login(user,pwd,captcha) #再次登陆
+client.save_token('token.pkl')
+
+#将通过zhihu_oauth爬取到的全部评论内容去除标签，获得纯文本文档
+def wenben(text): #定义函数
+    import re
+    if '<p>' in text:    
+        wenben = re.findall(u'[\u4e00-\u9fa5].*?</p>',text) #提取所有含有中文，并以</p>结尾的文本
+    else:     #发现有些评论内容并不在标签里面 
+        wenben = text
+    str1 = ''
+    for i in wenben:
+        str1 += i    #字符串直接相加，合并成一个字符串，有则加，else加空字符串
+    
+    ff = re.findall('<a .*?</a>',str1) # 去除<a >d打头的标签段落
+    for i in range(len(ff)):
+        str1 = str1.replace(ff[i],'')
+    fff = re.findall('<p class.*<br/>',str1) # 去除<p >d打头的标签段落
+    for j in range(len(fff)):
+        str1 = str1.replace(fff[j],'')
+    ffff = re.findall('<figure.*?</figure>',str1) #去除<figure >大头的标签段落
+    for z in range(len(ffff)):
+        str1 = str1.replace(ffff[z],'')
+    f4 = ['<p>','</p>','<b>','</b>','<a>','</a>','</figure>','<figure>','<br>','</br>','</h2>','<br/>'] #最后去除所有标签
+    for k in range(len(f4)):
+        str1 = str1.replace(f4[k],'')
+    
+    
+    return str1
+import pandas as pd
+ch1 = pd.read_csv('huawei_topic_id.csv',encoding='gb2312')#文中有中文，所以encoding
+print(ch1)
+#count = 0
+raws = []
+for i in ch1['t_id']:
+    time.sleep(10)
+    id = i
+    question = client.question(id)
+    answers = question.answers    
+    num = 1
+    for ans in answers:
+        if num <= question.answer_count:
+    #        time.sleep(5)
+            #print("NO.%d"%num,ans.author.name,ans.voteup_count,ans.author.headline,ans.author.gender,ans.created_time,ans.comment_count)
+            #print(ans.comments)
+    
+            dic={
+                'id':i,
+                'NO.':num,                       #序号
+                'author':ans.author.name,        #用户姓名
+                '点赞数':ans.voteup_count,       #点赞数
+                '签名':ans.author.headline,      #用户签名
+                '性别':ans.author.gender,      #性别
+                'created_time':ans.created_time, #评论时间戳
+                'thanks_conut':ans.thanks_count, #赞同数
+                '内容简要':ans.excerpt,  #简要内容
+                '内容':ans.content #全文本（含html标签）
+                }
+            raws.append(dic)
+            num += 1
+df = pd.DataFrame(raws)
+df.head()
+s = df.内容[0]
+#count +=1
+df.to_excel('huawei_s.xlsx',encoding = 'utf-8',index=True)
+io=r'C:\Users\thinkpad\huawei_s.xlsx'
+ch2 = pd.read_excel(io,huawei_s = 0)
+rawst = []
+num = 1
+for i in ch2['内容']:
+    mytext=wenben(i)
+    dic={
+         'NO.':num,                       #序号
+         '内容':mytext,
+         }
+    rawst.append(dic)
+    num += 1
+df = pd.DataFrame(rawst)
+df.to_excel('huawei_st.xlsx',encoding = 'utf-8',index=True)
