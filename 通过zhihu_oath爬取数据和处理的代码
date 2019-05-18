@@ -5,8 +5,8 @@ from zhihu_oauth import ZhihuClient
 from zhihu_oauth.exception import NeedCaptchaException #需要验证码
 
 client = ZhihuClient()
-user = ''//知乎的账号，手机号登陆需加”+86“
-pwd = ''//账号的密码
+user = ''  #知乎的账号，手机号登陆需加”+86“
+pwd = ''  #账号的密码
 
 try:
     client.login(user,pwd)
@@ -85,7 +85,7 @@ df.to_excel('huawei_s.xlsx',encoding = 'utf-8',index=True)
 
 
 
-//清洗文档
+#清洗文档
 io=r'C:\Users\thinkpad\huawei_s.xlsx'
 ch2 = pd.read_excel(io,huawei_s = 0)
 rawst = []
