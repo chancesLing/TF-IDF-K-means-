@@ -40,10 +40,12 @@ def wenben(text): #定义函数
         str1 = str1.replace(ffff[z],'')
     f4 = ['<p>','</p>','<b>','</b>','<a>','</a>','</figure>','<figure>','<br>','</br>','</h2>','<br/>'] #最后去除所有标签
     for k in range(len(f4)):
-        str1 = str1.replace(f4[k],'')
-    
-    
+        str1 = str1.replace(f4[k],'')    
     return str1
+
+
+
+
 import pandas as pd
 ch1 = pd.read_csv('huawei_topic_id.csv',encoding='gb2312')#文中有中文，所以encoding
 print(ch1)
@@ -80,6 +82,10 @@ df.head()
 s = df.内容[0]
 #count +=1
 df.to_excel('huawei_s.xlsx',encoding = 'utf-8',index=True)
+
+
+
+//清洗文档
 io=r'C:\Users\thinkpad\huawei_s.xlsx'
 ch2 = pd.read_excel(io,huawei_s = 0)
 rawst = []
